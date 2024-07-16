@@ -2,7 +2,7 @@
 //STATS
 var HP=80000
 var HPRegen=400
-var startPoint=[1812,66,1218]
+var startPoint=[] //Put the npc starting point here
 var meleeDamage=2000
 var rangedDamage=20
 //Transformation variables
@@ -23,15 +23,15 @@ var transformSound = "jinryuudragonbc:DBC.powerup"
 var attackBounceSound = "jinryuudragonbc:DBC4.block2" //sound that plays if the player tries to damage the npc while regenering
 var useAbilityOnlyOnce = true
 
-//clones
+//Clones
 var clone = "tienClone"
 var cloneSound = "jinryuudragonbc:1610.sse"
-var DoneAbility;
+var doneAbility;
 //Functions
 //Transformation
 function transform(npc){
     transforming=true
-    npc.setTempData("LastTarget",npc.getAttackTarget())
+    npc.setTempData("lastTarget",npc.getAttackTarget())
     npc.executeCommand("playsound " + transformSound + " @p" + " 0 0 0 1 0 1")
     npc.timers.forceStart(18,regenSpeed,true)
     npc.setRetaliateType(3)
@@ -71,7 +71,7 @@ function init(t){
     //Stun initializer
     t.npc.setTempData("hitsNeeded",Math.round(Math.random()*(hitsToStun[1]-hitsToStun[0]))+hitsToStun[0])
     t.npc.setTempData("hitsTaken",0)
-    DoneAbility = false
+    doneAbility = false
 }
 //Events per tick
 function tick(t){
@@ -108,8 +108,8 @@ function damaged(t){
     }
     //Clone
     //Make a check for if the NPC health is low enough, AND the global variable for the ability is false
-    if(t.npc.getHealth()-t.damage <= t.npc.getMaxHealth()*0.50 && !DoneAbility){
-        DoneAbility = true
+    if(t.npc.getHealth()-t.damage <= t.npc.getMaxHealth()*0.50 && !doneAbility){
+        doneAbility = true
         makeClones(t.npc)
     }
     //Transform
@@ -141,7 +141,7 @@ function timer(t){
     //if(t.npc.getHealth() >= t.npc.getMaxHealth()){
         //t.npc.setRetaliateType(0)
         //if(useAbilityOnlyOnce)t.npc.setTempData("skillUsed",1)
-        //t.npc.setAttackTarget(t.npc.getTempData("LastTarget"))
+        //t.npc.setAttackTarget(t.npc.getTempData("lastTarget"))
         //t.npc.timers.stop(18)}
     //t.npc.setHealth(t.npc.getHealth()+regenAmount)
     //}

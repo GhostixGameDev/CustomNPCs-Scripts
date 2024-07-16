@@ -8,25 +8,25 @@ var transformationName = "Sabaku No Gaara 2"
 var transformationCloneTab = 1
 //Shield of sand or other invulnerabilitys.
 var invulnerableToTypes=["ninjutsu_damage","mob","arrow","senjutsu","fall"]
-var StunDuration = 90 //ticks
-var NpcImmuneWhenNotStunned = true
-var NoDamageSound = "minecraft:block.anvil.land"
-var StunSound = "minecraft:entity.zombie.attack_iron_door"
+var stunDuration = 90 //ticks
+var npcImmuneWhenNotStunned = true
+var noDamageSound = "minecraft:block.anvil.land"
+var stunSound = "minecraft:entity.zombie.attack_iron_door"
 //Transformation
 var transforming=false
-var RegenSpeed = 5 //ticks
-var RegenAmount = 3 //hp
+var regenSpeed = 5 //ticks
+var regenAmount = 3 //hp
 var transformSound = "narutomod:shukaku_roar"
-var AttackBounceSound = "minecraft:entity.guardian.hurt" //sound that plays if the player tries to damage the npc while regenering
-var UseAbilityOnlyOnce = true
+var attackBounceSound = "minecraft:entity.guardian.hurt" //sound that plays if the player tries to damage the npc while regenering
+var useAbilityOnlyOnce = true
 
 //Functions
 //Transformation
 function transform(npc){
     transforming=true
-    npc.getTempdata().put("LastTarget",npc.getAttackTarget())
+    npc.getTempdata().put("lastTarget",npc.getAttackTarget())
     npc.world.playSoundAt(npc.getPos(),transformSound,1,1)
-    npc.timers.forceStart(18,RegenSpeed,true)
+    npc.timers.forceStart(18,regenSpeed,true)
     npc.ai.setRetaliateType(3)
 }
 
@@ -54,7 +54,7 @@ function damaged(t){
     //Transform
     if(t.npc.getTempdata().has("skillUsed"))return;
     if(t.npc.timers.has(18)){
-        t.npc.world.playSoundAt(t.npc.getPos(),AttackBounceSound,1,1)
+        t.npc.world.playSoundAt(t.npc.getPos(),attackBounceSound,1,1)
         t.setCanceled(true)
         return;
     }
@@ -66,11 +66,11 @@ function timer(t){
     if(t.id == 18){
         if(t.npc.getHealth() >= t.npc.stats.getMaxHealth()){
             t.npc.ai.setRetaliateType(0)
-            if(UseAbilityOnlyOnce)t.npc.getTempdata().put("skillUsed",1)
-            t.npc.setAttackTarget(t.npc.getTempdata().get("LastTarget"))
+            if(useAbilityOnlyOnce)t.npc.getTempdata().put("skillUsed",1)
+            t.npc.setAttackTarget(t.npc.getTempdata().get("lastTarget"))
             t.npc.timers.stop(18)
         }
-        t.npc.setHealth(t.npc.getHealth()+RegenAmount)
+        t.npc.setHealth(t.npc.getHealth()+regenAmount)
     }
     if(t.npc.getHealth()>=HP*0.70){
         t.API.clones.spawn(t.npc.x,t.npc.y,t.npc.z, transformationCloneTab,transformationName,t.npc.world)

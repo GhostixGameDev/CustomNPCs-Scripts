@@ -5,32 +5,32 @@ var startPoint=[] //Put here the boss coordinates
 var meleeDamage=8
 var rangedDamage=20
 //Default aggro range
-var DefaultRange = 3
-var CombatRange = 64
+var defaultRange = 3
+var combatRange = 64
 //Transformation variables
 var transformationName = "gaara 0.5"
 var transformationCloneTab = 1
 //Shield of sand or other invulnerabilitys.
 var invulnerableToTypes=["ninjutsu_damage","mob","arrow"]
 //Stun
-var HitsToStun = [5,9] //This is a range. So between 3-5 hits.
-var StunDuration = 90 //ticks
-var NpcImmuneWhenNotStunned = true
-var NoDamageSound = "minecraft:block.sand.break"
-var StunSound = "minecraft:entity.zombie.attack_iron_door"
+var hitsToStun = [5,9] //This is a range. So between 3-5 hits.
+var stunDuration = 90 //ticks
+var npcImmuneWhenNotStunned = true
+var noDamageSound = "minecraft:block.sand.break"
+var stunSound = "minecraft:entity.zombie.attack_iron_door"
 //Transformation
 var transforming=false
-var RegenSpeed = 5 //ticks
-var RegenAmount = 3 //hp
+var regenSpeed = 5 //ticks
+var regenAmount = 3 //hp
 var transformSound = "narutomod:shukaku_roar"
-var AttackBounceSound = "minecraft:entity.guardian.hurt" //sound that plays if the player tries to damage the npc while regenering
-var UseAbilityOnlyOnce = true
+var attackBounceSound = "minecraft:entity.guardian.hurt" //sound that plays if the player tries to damage the npc while regenering
+var useAbilityOnlyOnce = true
 
 //Functions
 //Stun and unstun.
 function Stun(npc){
     npc.world.playSoundAt(npc.getPos(),StunSound,1,1)
-    npc.timers.forceStart(17,StunDuration,false)
+    npc.timers.forceStart(17,stunDuration,false)
     npc.ai.setRetaliateType(3)
 }
     
@@ -40,9 +40,9 @@ function UnStun(npc){
 //Transformation
 function transform(npc){
     transforming=true
-    npc.getTempdata().put("LastTarget",npc.getAttackTarget())
+    npc.getTempdata().put("lastTarget",npc.getAttackTarget())
     npc.world.playSoundAt(npc.getPos(),transformSound,1,1)
-    npc.timers.forceStart(18,RegenSpeed,true)
+    npc.timers.forceStart(18,regenSpeed,true)
     npc.ai.setRetaliateType(3)
 }
 //NPC Hooks
@@ -55,19 +55,19 @@ function init(t){
     t.npc.stats.melee.setStrength(meleeDamage)
     t.npc.stats.ranged.setStrength(rangedDamage)
     //Default aggro range
-    t.npc.stats.setAggroRange(DefaultRange)
+    t.npc.stats.setAggroRange(defaultRange)
     //Shield and Skill
     t.npc.getTempdata().put("shielded",1)
     t.npc.getTempdata().remove("skillUsed")
     //Stun initializer
-    t.npc.getTempdata().put("hitsNeeded",Math.round(Math.random()*(HitsToStun[1]-HitsToStun[0]))+HitsToStun[0])
+    t.npc.getTempdata().put("hitsNeeded",Math.round(Math.random()*(hitsToStun[1]-hitsToStun[0]))+hitsToStun[0])
     t.npc.getTempdata().put("hitsTaken",0)
 }
 
 //Start of combat events
 function target(t){
     //Auto aggro range when attacking
-    t.npc.stats.setAggroRange(CombatRange)
+    t.npc.stats.setAggroRange(combatRange)
     t.npc.timers.forceStart(10,20,true)}
 
 
@@ -93,7 +93,7 @@ function damaged(t){
     //t.npc.say(t.damageSource.getType())
     //Auto aggro range
     if(!t.npc.isAttacking() && t.source){
-        t.npc.stats.setAggroRange(CombatRange)
+        t.npc.stats.setAggroRange(combatRange)
         t.npc.timers.forceStart(10,20,true)
         t.npc.setAttackTarget(t.source)}
     //Projectiles shield
@@ -109,19 +109,19 @@ function damaged(t){
     taken = taken + 1
     if(taken >= needed ){
         Stun(t.npc)
-        t.npc.getTempdata().put("hitsNeeded",(Math.round(Math.random()*(HitsToStun[1]-HitsToStun[0]))+HitsToStun[0]))
+        t.npc.getTempdata().put("hitsNeeded",(Math.round(Math.random()*(hitsToStun[1]-hitsToStun[0]))+hitsToStun[0]))
         taken = 0;
     }
     t.npc.getTempdata().put("hitsTaken",taken)
-    if(NpcImmuneWhenNotStunned && !t.npc.timers.has(17) && transforming!=true){
-        t.npc.world.playSoundAt(t.npc.getPos(),NoDamageSound,1,0.8)
+    if(npcImmuneWhenNotStunned && !t.npc.timers.has(17) && transforming!=true){
+        t.npc.world.playSoundAt(t.npc.getPos(),noDamageSound,1,0.8)
         t.setCanceled(true)
     }
         
     //Transform
     if(t.npc.getTempdata().has("skillUsed"))return;
     if(t.npc.timers.has(18)){
-        t.npc.world.playSoundAt(t.npc.getPos(),AttackBounceSound,1,1)
+        t.npc.world.playSoundAt(t.npc.getPos(),attackBounceSound,1,1)
         t.setCanceled(true)
         return;
     }
@@ -138,7 +138,7 @@ function timer(t){
     if(t.id == 10){
         if(!t.npc.isAttacking()){
             t.npc.timers.stop(10)
-            t.npc.stats.setAggroRange(DefaultRange)
+            t.npc.stats.setAggroRange(defaultRange)
         }
     }
     //Stun timer.
@@ -154,11 +154,11 @@ function timer(t){
         //Transformation in the same npc.
         //if(t.npc.getHealth() >= t.npc.stats.getMaxHealth()){
             //t.npc.ai.setRetaliateType(0)
-            //if(UseAbilityOnlyOnce)t.npc.getTempdata().put("skillUsed",1)
-            //t.npc.setAttackTarget(t.npc.getTempdata().get("LastTarget"))
+            //if(useAbilityOnlyOnce)t.npc.getTempdata().put("skillUsed",1)
+            //t.npc.setAttackTarget(t.npc.getTempdata().get("lastTarget"))
             //t.npc.timers.stop(18)
         //}
-        //t.npc.setHealth(t.npc.getHealth()+RegenAmount)}
+        //t.npc.setHealth(t.npc.getHealth()+regenAmount)}
 
     
 }

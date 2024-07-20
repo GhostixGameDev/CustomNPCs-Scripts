@@ -10,7 +10,7 @@ var hitsToStun = [5,9] //This is a range. So between 3-5 hits.
 var stunDuration = 140 //ticks
 var npcImmuneWhenNotStunned = true
 var stunSound = "jinryuudragonbc:DBC2.strongpunch"
-
+var attackBounceSound = "jinryuudragonbc:DBC4.block2"
 //Critical hits
 var damageBoost = 5 
 var criticSound = "jinryuudragonbc:DBC2.strongpunch"

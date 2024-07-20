@@ -1,70 +1,46 @@
 //Globals
 //STATS
-var HP=800000
-var HPRegen=5000
-var startPoint=[1812,66,1218]
-var meleeDamage=14000
-var rangedDamage=10000
-//Transformation variables
-var transformationName = "Yurin"
-var transformationCloneTab = 1
+var HP=50000
+var HPRegen=400
+var startPoint=[1204, 72, 1038] //Change this to your npc starting point
+var meleeDamage=1000
+var rangedDamage=10
 //Stun
 var hitsToStun = [5,9] //This is a range. So between 3-5 hits.
 var stunDuration = 140 //ticks
 var npcImmuneWhenNotStunned = true
-
 var stunSound = "jinryuudragonbc:DBC2.strongpunch"
 
-//Transformation
-var transforming=false
-var regenSpeed = 5 //ticks
-var regenAmount = 3 //hp
-var transformSound = "jinryuudragonbc:DBC.powerup"
-var attackBounceSound = "jinryuudragonbc:DBC4.block2" //sound that plays if the player tries to damage the npc while regenering
-var useAbilityOnlyOnce = true
+//Critical hits
+var damageBoost = 5 
+var criticSound = "jinryuudragonbc:DBC2.strongpunch"
+var randomHitRange = [4,10]
 
-//clones
-var clone = "tienClone"
-var cloneSound = "jinryuudragonbc:1610.sse"
-var DoneAbility;
 //Functions
-//Transformation
-function transform(npc){
-    transforming=true
-    npc.setTempData("lastTarget",npc.getAttackTarget())
-    npc.executeCommand("playsound " + transformSound + " @p" + " 0 0 0 1 0 1")
-    npc.timers.forceStart(18,regenSpeed,true)
-    npc.setRetaliateType(3)
-}
-function makeClones(npc, surroundingPlayers){
-    var surroundingPlayersAmount = surroundingPlayers.length
-    for(var i=0; i<6; i++){
-        for(var j=0; j<surroundingPlayersAmount;j++){
-           playSound(npc, cloneSound, surroundingPlayers[j])
-        }
-        npc.executeCommand("kamkeel clone spawn " + clone + " " + transformationCloneTab)
-    }
+//Critics
+function pickRandomNumberInRange(num1,num2){
+    var range = [num1,num2]
+    var num = (Math.round(Math.random()*(range[1]-range[0]))+range[0])
+    return num;
 }
 //Stun and unstun.
-function stun(npc, surroundingPlayers){
-    var surroundingPlayersAmount = surroundingPlayers.length
-    for(var i=0; i<surroundingPlayersAmount;i++){
-        playSound(npc, attackBounceSound, surroundingPlayers[i])
-    }
+function stun(npc){
+    playSound(npc, cloneSound)
     npc.timers.forceStart(17,stunDuration,false)
 }
-
 function unStun(npc){
-    npc.say("NO ME VENCERAS TAN FACIL!")
+    npc.say("NO VENCERAS AL CAMPEON DEL MUNDO!")
 }
-function playSound(npc, sound, player){
-    npc.executeCommand("playsound " + sound + " " + player.getName() +" 0 0 0 1 0 1")
+//Utilities
+function playSound(npc, sound){
+    npc.getWorld().playSoundAtEntity(npc, sound, 1.0, 0.0)
 }
 function getSurroundingPlayers(npc){
     var surroundingPlayers = npc.getSurroundingEntities(npc.getAggroRange(), 1)
     npc.setTempData("lastSurroundingPlayers", surroundingPlayers)
     return surroundingPlayers;
 }
+//Adjust stats by surrounding players amount
 function partyStatsAdjuster(npc, multiplier) {
     // Ensure HP and other relevant stats are defined and valid numbers
     if (typeof HP !== 'number' || isNaN(HP) || HP <= 0) {
@@ -130,6 +106,7 @@ function partyStatsAdjuster(npc, multiplier) {
 
 //Initial events
 function init(t){
+    t.npc.timers.clear()
     //Stats initializer.
     t.npc.setHome(startPoint[0],startPoint[1],startPoint[2])
     t.npc.setPosition(startPoint[0],startPoint[1],startPoint[2])
@@ -138,13 +115,18 @@ function init(t){
     t.npc.setHealthRegen(HPRegen)
     t.npc.setMeleeStrength(meleeDamage)
     t.npc.setRangedStrength(rangedDamage)
+    //t.npc.setName("§fTienshinhan") Enable if u dont care about using it on quests.
+    t.npc.setTitle("§2Campeon del Torneo§6")
     //Shield and Skill
     t.npc.setTempData("shielded",1)
     t.npc.removeTempData("skillUsed")
     //Stun initializer
     t.npc.setTempData("hitsNeeded",Math.round(Math.random()*(hitsToStun[1]-hitsToStun[0]))+hitsToStun[0])
     t.npc.setTempData("hitsTaken",0)
-    DoneAbility = false
+    doneAbility = false
+    //Critics
+    hitNumGoal = pickRandomNumberInRange(randomHitRange[0],randomHitRange[1])
+    hitNum = 0;
 }
 //Events per tick
 function tick(t){
@@ -154,14 +136,12 @@ function tick(t){
         var targ = t.npc.getAttackTarget()
         var ClosestPlayer
         if(targ.getType() != 1){
-        ClosestPlayer = t.npc.world.getClosestEntity(t.npc.getPos(),t.npc.getAggroRange(),3)
+        ClosestPlayer = t.npc.world.getClosestVulnerablePlayer(t.npc.getPos(),t.npc.getAggroRange(),3)
         if(targ != ClosestPlayer){
             //t.npc.say("Changing target to:"+ClosestPlayer)
             t.npc.setAttackTarget(ClosestPlayer)
             }
         }
-        //Stats adjuster
-        partyStatsAdjuster(t.npc, 1)
     }
     
 }
@@ -171,57 +151,51 @@ function damaged(t){
     //Stun
     var taken = t.npc.getTempData("hitsTaken")
     var needed = t.npc.getTempData("hitsNeeded")
-    var surroundingPlayers = getSurroundingPlayers(t.npc)
-    var surroundingPlayersAmount = surroundingPlayers.length
     taken = taken + 1
     if(taken >= needed ){
-        stun(t.npc, surroundingPlayers)
+        stun(t.npc)
         t.npc.setTempData("hitsNeeded",(Math.round(Math.random()*(hitsToStun[1]-hitsToStun[0]))+hitsToStun[0]))
         taken = 0;
     }
     t.npc.setTempData("hitsTaken",taken)
-    if(npcImmuneWhenNotStunned && !t.npc.timers.has(17) && transforming!=true){
+    if(npcImmuneWhenNotStunned && !t.npc.timers.has(17)){
         
-        for(var i=0; i<surroundingPlayersAmount;i++){
-            playSound(t.npc, attackBounceSound, surroundingPlayers[i])
-        }
+        playSound(t.npc, attackBounceSound)
         t.setCanceled(true)
-    }
-    //Clone
-    //Make a check for if the NPC health is low enough, AND the global variable for the ability is false
-    if(t.npc.getHealth()-t.damage <= t.npc.getMaxHealth()*0.50 && !DoneAbility){
-        DoneAbility = true
-        makeClones(t.npc, surroundingPlayers)
-    }
-    //Transform
-    if(t.npc.hasTempData("skillUsed")) return;
-    if(t.npc.timers.has(18)){
-        for(var i=0; i<surroundingPlayersAmount;i++){
-            playSound(t.npc, attackBounceSound, surroundingPlayers[i])
-        }
-        t.setCanceled(true)
-        return;
-    }
-    if(t.npc.getHealth() - t.damage <= 0){
-        t.damage = 0
-        t.npc.setHealth(1)
-        transform(t.npc)
     }
 }
 
+function target(t){
+    //Stats adjuster
+    partyStatsAdjuster(t.npc, 1)
+
+}
+
+function meleeAttack(t){
+    //Critics
+    hitNum = hitNum +1
+    if(hitNum > hitNumGoal){
+        playSound(t.npc, criticSound)
+        t.npc.getWorld().spawnParticle("crit",t.target.x,t.target.y+1,t.target.z,0.3,0.3,0.3,0,15)
+        t.damage = t.damage + damageBoost
+        hitNumGoal = pickRandomNumberInRange(randomHitRange[0],randomHitRange[1])
+        hitNum = 0
+    }
+}
 //Timers/Temporizadores
 function timer(t){
     //Stun timer.
-    if(t.id == 17 && transforming!=true){
+    if(t.id == 17){
         unStun(t.npc)}
-    //Transformation.
-    if(t.id == 18){
-        t.npc.say("Q-Que?");
-        t.npc.executeCommand("kamkeel clone spawn " + transformationName + " " + transformationCloneTab)
-        t.npc.despawn()
-    }
     
 }
+
+//Transformation.
+function killed(t){
+    t.npc.say("Me dolia el estomago...");
+}
+
+
 
 
 

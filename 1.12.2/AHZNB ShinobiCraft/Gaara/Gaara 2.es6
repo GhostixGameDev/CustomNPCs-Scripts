@@ -7,7 +7,7 @@ var rangedDamage=40
 var defaultRange = 3
 var combatRange = 64
 //Transformation variables
-var transformationName = "Sabaku No Gaara"
+var transformationName = "gaara_boss"
 var transformationCloneTab = 1
 //Shield of sand or other invulnerabilitys.
 var invulnerableToTypes=["ninjutsu_damage","mob","arrow"]

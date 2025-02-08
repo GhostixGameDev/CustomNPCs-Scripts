@@ -1,20 +1,19 @@
 //Globals
 //STATS
 var HP=800
-var startPoint=[] //Put here the boss coordinates
 var meleeDamage=8
 var rangedDamage=20
 //Default aggro range
 var defaultRange = 3
 var combatRange = 64
 //Transformation variables
-var transformationName = "gaara 0.5"
+var transformationName = "gaara_boss_transforming"
 var transformationCloneTab = 1
-//Shield of sand or other invulnerabilitys.
-var invulnerableToTypes=["ninjutsu_damage","mob","arrow"]
+//Shield of sand invulnerabilities.
+var invulnerableToTypes=["ninjutsu_damage", "mob", "arrow"]
 //Stun
-var hitsToStun = [5,9] //This is a range. So between 3-5 hits.
-var stunDuration = 90 //ticks
+var hitsToStun = [12, 30] //This is a range. So between 12-30 hits.
+var stunDuration = 30 //ticks
 var npcImmuneWhenNotStunned = true
 var noDamageSound = "minecraft:block.sand.break"
 var stunSound = "minecraft:entity.zombie.attack_iron_door"
@@ -29,7 +28,7 @@ var useAbilityOnlyOnce = true
 //Functions
 //Stun and unstun.
 function Stun(npc){
-    npc.world.playSoundAt(npc.getPos(),StunSound,1,1)
+    npc.world.playSoundAt(npc.getPos(), stunSound, 1, 1)
     npc.timers.forceStart(17,stunDuration,false)
     npc.ai.setRetaliateType(3)
 }
@@ -49,8 +48,14 @@ function transform(npc){
 //Initial events
 function init(t){
     //Stats initializer.
-    t.npc.setHome(startPoint[0],startPoint[1],startPoint[2])
-    t.npc.setPosition(startPoint[0],startPoint[1],startPoint[2])
+    if(t.npc.getWorld().getTempdata().has("gaaraBossHome")) {
+        var home = t.npc.getWorld().getTempdata().get("gaaraBossHome");
+        t.npc.setHome(home[0], home[1], home[2]);
+        t.npc.setX(home[0]);
+        t.npc.setY(home[1]);
+        t.npc.setZ(home[2]);
+        t.npc.getWorld().getTempdata().remove("gaaraBossHome")
+    }
     t.npc.stats.setMaxHealth(HP)
     t.npc.stats.melee.setStrength(meleeDamage)
     t.npc.stats.ranged.setStrength(rangedDamage)
@@ -68,12 +73,12 @@ function init(t){
 function target(t){
     //Auto aggro range when attacking
     t.npc.stats.setAggroRange(combatRange)
-    t.npc.timers.forceStart(10,20,true)}
+    t.npc.timers.forceStart(10,20,true)
+}
 
 
 //Events per tick
 function tick(t){
-
     //AI
     if(t.npc.isAttacking()){
         var targ = t.npc.getAttackTarget()
@@ -147,20 +152,10 @@ function timer(t){
     }
     //Transformation.
     if(t.id == 18){
-        t.API.clones.spawn(t.npc.x,t.npc.y,t.npc.z,transformationCloneTab,transformationName,t.npc.world)
+        t.npc.getWorld().getTempdata().put("gaaraBossHome", [t.npc.getHomeX(),t.npc.getHomeY(),t.npc.getHomeZ()]);
+        t.API.clones.spawn(t.npc.x, t.npc.y, t.npc.z, transformationCloneTab, transformationName, t.npc.world)
         t.npc.despawn()
     }
-        //Enable this and disable the top code if you want the
-        //Transformation in the same npc.
-        //if(t.npc.getHealth() >= t.npc.stats.getMaxHealth()){
-            //t.npc.ai.setRetaliateType(0)
-            //if(useAbilityOnlyOnce)t.npc.getTempdata().put("skillUsed",1)
-            //t.npc.setAttackTarget(t.npc.getTempdata().get("lastTarget"))
-            //t.npc.timers.stop(18)
-        //}
-        //t.npc.setHealth(t.npc.getHealth()+regenAmount)}
-
-    
 }
 
 

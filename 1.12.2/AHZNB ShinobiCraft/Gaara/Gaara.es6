@@ -24,9 +24,16 @@ var regenAmount = 3 //hp
 var transformSound = "narutomod:shukaku_roar"
 var attackBounceSound = "minecraft:entity.guardian.hurt" //sound that plays if the player tries to damage the npc while regenering
 var useAbilityOnlyOnce = true
+//Jutsu pool
+var availableJutsus = [
+    {id: "sand_coffin", weight: 1},
+    {id: "sand_spikes", weight: 6},
+    {id: "following_sand_trail", weight: 8}
+];
+var jutsuPool = sortItemPool(availableJutsus);
 
 //Functions
-//Stun and unstun.
+
 function Stun(npc){
     npc.world.playSoundAt(npc.getPos(), stunSound, 1, 1)
     npc.timers.forceStart(17,stunDuration,false)
@@ -36,7 +43,7 @@ function Stun(npc){
 function UnStun(npc){
     npc.ai.setRetaliateType(0)
 }
-//Transformation
+
 function transform(npc){
     transforming=true
     npc.getTempdata().put("lastTarget",npc.getAttackTarget())
@@ -44,6 +51,34 @@ function transform(npc){
     npc.timers.forceStart(18,regenSpeed,true)
     npc.ai.setRetaliateType(3)
 }
+
+function getSurroundingPlayers(npc){
+    var surroundingPlayers = npc.getSurroundingEntities(npc.getAggroRange(), 1)
+    npc.setTempData("lastSurroundingPlayers", surroundingPlayers)
+    return surroundingPlayers;
+}
+
+function pickRandomNumberInRange(num1,num2){
+    var range = [num1,num2]
+    var num = (Math.round(Math.random()*(range[1]-range[0]))+range[0])
+    return num;
+}
+
+// The pool argument should be a json with the string and the weight.
+function sortItemPool(poolToSort){
+    var itemPool = [];
+    poolToSort.forEach(function(item) {
+        for (var i = 0; i < item.weight; i++) {
+            itemPool.push(item.id);
+        }
+    });
+    return itemPool
+}
+
+function chooseFromPool(pool){
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+
 //NPC Hooks
 //Initial events
 function init(t){

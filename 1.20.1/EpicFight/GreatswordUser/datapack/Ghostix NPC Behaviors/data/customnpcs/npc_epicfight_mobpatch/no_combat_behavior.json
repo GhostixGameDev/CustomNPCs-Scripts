@@ -1,0 +1,29 @@
+{
+	"model": "epicfight:entity/biped",
+	"armature": "epicfight:entity/biped",
+	"renderer": "zombie",
+	"isHumanoid": true,
+	"faction": "villager",
+	"attributes": {
+			"impact": 0.5,
+			"armor_negation": 0.0,
+			"max_strikes": 1,
+			"chasing_speed": 0.7,
+							"scale": 1.0
+	},
+	"default_livingmotions": {
+			"idle": "epicfight:biped/living/idle",
+			"walk": "epicfight:biped/living/walk",
+			"chase": "epicfight:biped/living/walk",
+			"mount": "epicfight:biped/living/mount",
+							"fall": "epicfight:biped/living/fall",
+			"death": "epicfight:biped/living/death"
+	},
+	"stun_animations": {
+			"short": "epicfight:biped/combat/hit_short",
+			"long": "epicfight:biped/combat/hit_long",
+			"knockdown": "epicfight:biped/combat/knockdown",
+			"fall": "epicfight:biped/living/landing",
+			"neutralize": "epicfight:biped/skill/guard_break1"
+	}
+}

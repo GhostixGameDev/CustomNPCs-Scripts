@@ -1,0 +1,243 @@
+{
+	"model": "epicfight:entity/biped",
+	"armature": "epicfight:entity/biped",
+	"renderer": "zombie",
+	"isHumanoid": true,
+	"faction": "villager",
+	"attributes": {
+	  "impact": 0.8,
+	  "armor_negation": 0.6,
+	  "max_strikes": 8,
+	  "chasing_speed": 2.0,
+	  "scale": 1.0,
+	  "max_stamina": 90,
+		  "stamina_regan_delay": 60,
+		  "has_stun_reduction": true,
+		  "max_stun_shield": 5,
+		  "stun_shield_regan_multiply": 1.2,
+		  "stun_shield_regan_delay": 20,
+		  "stamina_lose_multiply": 0.5
+	},
+	"default_livingmotions": {
+	  "idle": "epicfight:biped/living/hold_greatsword",
+	  "walk": "epicfight:biped/living/walk_greatsword",
+	  "chase": "epicfight:biped/living/run_greatsword",
+	  "mount": "epicfight:biped/living/mount",
+	  "fall": "epicfight:biped/living/fall",
+	  "death": "epicfight:biped/living/landing"
+	},
+	"humanoid_weapon_motions": [
+		{
+			"weapon_categories": ["greatsword", "sword","longsword","tachi","uchigatana"],
+			"style":"two_hand",
+			"livingmotions": {
+				"idle": "epicfight:biped/living/hold_greatsword",
+				"walk": "epicfight:biped/living/walk_greatsword",
+				"chase": "epicfight:biped/living/run_greatsword",
+				"mount": "epicfight:biped/living/mount",
+				"fall": "epicfight:biped/living/fall",
+				"death": "epicfight:biped/living/landing"
+			}
+		}
+	],
+	"custom_guard_motion": [
+			  { 
+				  "weapon_categories": ["greatsword", "sword","longsword","tachi","uchigatana"],
+				  "style":"two_hand",
+				  "guard": "epicfight:biped/skill/guard_spear",
+				  "stamina_cost_multiply": 1.5,
+				  "can_block_projectile" : true
+			  }
+	  ],
+	"stun_animations": {
+	  "short": "epicfight:biped/combat/hit_short",
+	  "long": "epicfight:biped/combat/hit_long",
+	  "knockdown": "epicfight:biped/combat/knockdown",
+	  "fall": "epicfight:biped/living/landing",
+	  "neutralize": "epicfight:biped/skill/guard_break1"
+	},
+	"combat_behavior": [
+	  {
+		"weapon_categories": ["greatsword", "sword","longsword","tachi","uchigatana"],
+		"style": "two_hand",
+		"behavior_series": [
+		  {
+			"weight": 120.0,
+			"canBeInterrupted": true,
+			"looping": false,
+			"behaviors": [
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 2.5}, {"predicate":"within_angle_horizontal", "min": 0.0, "max": 180.0}
+				],
+				"animation": "epicfight:biped/combat/greatsword_auto1"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 2.5}, {"predicate":"within_angle_horizontal", "min": 0.0, "max": 180.0}
+				],
+				"animation": "epicfight:biped/combat/greatsword_auto2"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 4.0}
+				],
+				"animation": "epicfight:biped/skill/roll_backward"
+			  }
+			]
+		  },
+		  {
+			"weight": 80,
+			"canBeInterrupted": false,
+			"looping": false,
+			"behaviors": [
+				{
+					"conditions": [
+						{"predicate":"within_distance", "min": 0.0, "max": 6.0}
+					],
+					"guard": 3,
+					"counter": "epicfight:biped/skill/guard_sword_hit_active1",
+					"counter_cost": 0,
+					"counter_chance": 1.0,
+					"counter_speed": 1
+					}
+				]                 
+				},
+		  {
+			"weight": 100.0,
+			"canBeInterrupted": true,
+			"looping": false,
+			"behaviors": [
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 2.5}, {"predicate":"within_angle_horizontal", "min": 0.0, "max": 180.0}
+				],
+				"animation": "epicfight:biped/combat/greatsword_auto1"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 2.5}, {"predicate":"within_angle_horizontal", "min": 0.0, "max": 180.0}
+				],
+				"animation": "epicfight:biped/combat/greatsword_auto2"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 4.0}
+				],
+				"animation": "epicfight:biped/skill/roll_backward"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 7.5}
+				],
+				"animation": "epicfight:biped/skill/steel_whirlwind"
+			  }
+			]
+		  },
+		  {
+					  "weight": 90,
+					  "canBeInterrupted": false,
+					  "looping": false,
+					  "cooldown": 20,
+					  "behaviors": [
+						  {
+							  "conditions": [
+								  {"predicate":"within_eye_height"}
+							  ],
+							  "guard": 5,
+							  "counter": "indestructible:guard/counter",
+							  "counter_cost": 3,
+							  "counter_chance": 0,
+							  "counter_speed": 1
+						  }
+			  ]                 
+				  },
+		  {
+			"weight": 121.0,
+			"canBeInterrupted": false,
+			"looping": false,
+			"behaviors": [
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 2.5}, {"predicate":"within_angle_horizontal", "min": 0.0, "max": 180.0}
+				],
+				"animation": "epicfight:biped/combat/greatsword_auto1"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 2.5}, {"predicate":"within_angle_horizontal", "min": 0.0, "max": 180.0}
+				],
+				"animation": "epicfight:biped/combat/greatsword_auto2"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 2.0}
+				],
+				"animation": "epicfight:biped/skill/roll_backward"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 7.5}
+				],
+				"animation": "epicfight:biped/combat/greatsword_dash"
+			  }
+			]
+		  },
+		  {
+			"weight": 100.0,
+			"canBeInterrupted": false,
+			"looping": false,
+			"behaviors": [
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 2.5}, {"predicate":"within_angle_horizontal", "min": 0.0, "max": 180.0}
+				],
+				"animation": "epicfight:biped/combat/greatsword_auto1"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 3.5}
+				],
+				"animation": "epicfight:biped/skill/step_left"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 3.5}
+				],
+				"animation": "epicfight:biped/skill/the_guillotine"
+			  }
+			]
+		  },
+		  {
+			"weight": 95.0,
+			"canBeInterrupted": false,
+			"looping": false,
+			"behaviors": [
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"}, {"predicate":"within_distance", "min": 0.0, "max": 2.0}
+				],
+				"animation": "epicfight:biped/skill/roll_backward"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"},
+				  {"predicate":"within_distance", "min": 0.0, "max": 7.5},
+				  {"predicate":"random_chance", "chance": 0.7}
+				],
+				"animation": "epicfight:biped/skill/steel_whirlwind_charging"
+			  },
+			  {
+				"conditions": [
+				  {"predicate":"within_eye_height"},
+				  {"predicate":"within_distance", "min": 0.0, "max": 7.5}
+				],
+				"animation": "epicfight:biped/skill/steel_whirlwind"
+			  }
+			]
+		  }
+		]
+	  }
+	]
+  }
+  
